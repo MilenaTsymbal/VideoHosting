@@ -1,0 +1,18 @@
+.channelPhoto {
+    width: 120px;
+    height: 120px;
+    border-radius: 100px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.channelInfoContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 80px;
+}
+
+.rightsButton {
+    width: 170px;
+}

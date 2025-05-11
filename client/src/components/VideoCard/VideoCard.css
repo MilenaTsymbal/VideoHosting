@@ -1,0 +1,74 @@
+.videoCardContainer {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.posterCard {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.infoContainer {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+}
+
+.videoInfoContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.avatarPhoto {
+    margin: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.textInfoContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.videoTitle {
+    all: unset;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+    cursor: pointer;
+}
+
+.deleteIcon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.videoTitle:hover,
+.channelName:hover,
+.avatarPhoto:hover,
+.deleteIcon:hover {
+    opacity: 0.6;
+}
+
+.channelName {
+    all: unset;
+    font-size: 14px;
+    color: #777;
+    margin: 0;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+

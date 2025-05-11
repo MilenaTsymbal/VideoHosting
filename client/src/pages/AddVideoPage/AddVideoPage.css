@@ -1,0 +1,41 @@
+.addVideoPageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin-top: 80px;
+}
+
+.addVideoTitle {
+    margin-bottom: 40px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 250px;
+    height: 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    margin-top: 8px;
+}
+
+.addButton {
+    width: 100px;
+    height: 35px;
+    border-radius: 25px;
+    font-size: 16px;
+    background-color: black;
+    color: white;
+    margin-left: 30px;
+    cursor: pointer;
+    margin-left: 70px;
+}
+
+.addButton:hover {
+    opacity: 0.6;
+}
