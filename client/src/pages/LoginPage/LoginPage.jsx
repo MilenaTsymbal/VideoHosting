@@ -8,8 +8,8 @@ function LoginPage() {
       <h2 className="addVideoTitle">Login</h2>
       <form className='addForm'>
         <div className="formGroup">
-          <label htmlFor="username">Username</label>
-          <input type="text" id="username" name="username" placeholder="Enter username" required />
+          <label htmlFor="email">Email</label>
+          <input type="text" id="email" name="email" placeholder="Enter email" required />
         </div>
         <div className="formGroup">
           <label htmlFor="password">Password</label>

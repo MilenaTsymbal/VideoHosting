@@ -19,6 +19,10 @@ function RegisterPage() {
           <label htmlFor="password">Password</label>
           <input type="text" id="password" name="password" placeholder="Enter password" required />
         </div>
+        <div className="formGroup">
+          <label htmlFor="repeatPassword">Repeat password</label>
+          <input type="text" id="repeatPassword" name="repeatPassword" placeholder="Enter repeat password" required />
+        </div>
         <Link className="link" to="/">
             <button className="addButton" type="submit">Login</button>
         </Link>
