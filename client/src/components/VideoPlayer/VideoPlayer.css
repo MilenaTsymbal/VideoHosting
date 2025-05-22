@@ -112,8 +112,23 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  outline: none;
+  box-shadow: none;
 }
+
 .videoPlayer__actionBtn:focus {
-  outline: 2px solid #1976d2;
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: none;
+}
+
+.videoPlayer__actionBtn img {
+  width: 24px;
+  height: 24px;
+}
+
+.videoPlayer__actionBtn span {
+  margin-left: 4px;
+  font-size: 16px;
+  color: #222;
+  user-select: none;
 }

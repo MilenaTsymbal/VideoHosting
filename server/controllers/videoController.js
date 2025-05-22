@@ -179,3 +179,49 @@ exports.shareVideo = async (req, res) => {
       .json({ message: "Failed to share video", error: err.message });
   }
 };
+
+exports.likeVideo = async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+    if (!video) return res.status(404).json({ message: "Video not found" });
+
+    video.dislikes = video.dislikes.filter(
+      (userId) => userId.toString() !== req.user._id.toString()
+    );
+
+    if (video.likes.includes(req.user._id)) {
+      video.likes = video.likes.filter(
+        (userId) => userId.toString() !== req.user._id.toString()
+      );
+    } else {
+      video.likes.push(req.user._id);
+    }
+    await video.save();
+    res.json({ likes: video.likes.length, dislikes: video.dislikes.length, liked: video.likes.includes(req.user._id) });
+  } catch (err) {
+    res.status(500).json({ message: "Like failed", error: err.message });
+  }
+};
+
+exports.dislikeVideo = async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+    if (!video) return res.status(404).json({ message: "Video not found" });
+
+    video.likes = video.likes.filter(
+      (userId) => userId.toString() !== req.user._id.toString()
+    );
+
+    if (video.dislikes.includes(req.user._id)) {
+      video.dislikes = video.dislikes.filter(
+        (userId) => userId.toString() !== req.user._id.toString()
+      );
+    } else {
+      video.dislikes.push(req.user._id);
+    }
+    await video.save();
+    res.json({ likes: video.likes.length, dislikes: video.dislikes.length, disliked: video.dislikes.includes(req.user._id) });
+  } catch (err) {
+    res.status(500).json({ message: "Dislike failed", error: err.message });
+  }
+};

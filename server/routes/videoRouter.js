@@ -23,5 +23,7 @@ router.delete("/:id", authMiddleware, videoController.deleteVideo);
 router.get("/", videoController.list);
 router.get("/:id", videoController.getVideoById);
 router.post("/:id/share", authMiddleware, videoController.shareVideo);
+router.post("/:id/like", authMiddleware, videoController.likeVideo);
+router.post("/:id/dislike", authMiddleware, videoController.dislikeVideo);
 
 module.exports = router;
