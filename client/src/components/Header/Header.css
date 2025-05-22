@@ -1,77 +1,89 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.containerHeader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    margin-top: 5px;
-    width: 100%;
-    height: 50px;
-    border-bottom: 2px solid black;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background-color: white;
-    z-index: 1000;
-    margin: 0;
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  border-bottom: 2px solid black;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  z-index: 1000;
 }
 
-.logoAndNameContainer {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 30px;
+.header__logoBlock {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 30px;
 }
 
-.logo {
-    height: 35px;
-    width: 35px;
+.header__logo {
+  height: 35px;
+  width: 35px;
 }
 
-.name {
-    font-size: 25px;
-    color: black;
-    margin-left: 10px;
-    text-decoration: none;
-    cursor: pointer;
-    font-weight: 600;
+.header__brand {
+  font-size: 25px;
+  color: black;
+  margin-left: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
 }
 
-.links {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+.header__nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.link {
-    all: unset;
-    color: black;
-    text-decoration: underline; 
-    cursor: pointer;
-    font-size: 17px;
-    margin-right: 30px;
+.header__navLink {
+  all: unset;
+  color: black;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 17px;
+  margin-right: 30px;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
 }
 
-.link:link, 
-.name:link,
-.link:visited,
-.name:visited,
-.link:active,
-.name:active {
-    color: black;
+.header__navLink:link,
+.header__brand:link,
+.header__navLink:visited,
+.header__brand:visited,
+.header__navLink:active,
+.header__brand:active {
+  color: black;
 }
 
-.link:hover,
-.name:hover {
-    opacity: 0.6;
+.header__navLink:hover,
+.header__brand:hover {
+  opacity: 0.6;
 }
 
-.notificationIcon {
-    width: 25px;
-    height: 25px;
+.header__icon {
+  width: 25px;
+  height: 25px;
+}
+
+.header__logoutBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 30px 0 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }

@@ -1,9 +1,97 @@
-.dontHaveAndAccount {
-    margin-top: 20px;
-    font-size: 13px;
-    margin-left: 10px;
+.loginPage__container {
+  max-width: 400px;
+  margin: 60px auto 0 auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  padding: 36px 32px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.register {
-    font-size: 13px;
+.loginPage__title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: #222;
+  text-align: center;
+}
+
+.loginPage__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.loginPage__formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.loginPage__label {
+  font-size: 15px;
+  color: #444;
+  margin-bottom: 2px;
+}
+
+.loginPage__input {
+  padding: 8px 10px;
+  font-size: 15px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  outline: none;
+  background: #fafbfc;
+  transition: border 0.2s;
+}
+
+.loginPage__input:focus {
+  border: 1.5px solid #4f8cff;
+  background: #fff;
+}
+
+.loginPage__button {
+  margin-top: 10px;
+  padding: 10px 0;
+  background: #4f8cff;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.loginPage__button:hover {
+  background: #2563eb;
+}
+
+.loginPage__registerText {
+  margin-top: 24px;
+  font-size: 15px;
+  text-align: center;
+  color: #444;
+}
+
+.loginPage__registerLink {
+  font-size: 15px;
+  color: #4f8cff;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.loginPage__registerLink:hover {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.loginPage__error {
+  color: #e11d48;
+  font-size: 15px;
+  margin: 0;
+  text-align: center;
 }

@@ -1,41 +1,60 @@
-.addVideoPageContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    margin-top: 80px;
+.addVideo__container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 100px;
 }
 
-.addVideoTitle {
-    margin-bottom: 40px;
+.addVideo__form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.formGroup {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
+.addVideo__title {
+  margin: 0;
+  text-align: center;
 }
 
-input {
-    width: 250px;
-    height: 30px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 16px;
-    margin-top: 8px;
+.addVideo__label {
+  font-weight: bold;
+  font-size: 14px;
 }
 
-.addButton {
-    width: 100px;
-    height: 35px;
-    border-radius: 25px;
-    font-size: 16px;
-    background-color: black;
-    color: white;
-    margin-left: 30px;
-    cursor: pointer;
-    margin-left: 70px;
+.addVideo__input[type="text"],
+.addVideo__input[type="file"] {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.addButton:hover {
-    opacity: 0.6;
+.addVideo__button {
+  padding: 12px;
+  font-size: 16px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.addVideo__button:hover {
+  background-color: #333;
+}
+
+@media (max-width: 600px) {
+  .addVideo__form {
+    width: 100%;
+    padding: 16px;
+  }
 }

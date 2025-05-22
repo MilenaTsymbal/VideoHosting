@@ -1,18 +1,192 @@
-.channelPhoto {
-    width: 120px;
-    height: 120px;
-    border-radius: 100px;
-    object-fit: cover;
-    margin-right: 20px;
+.channelPage__infoContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 80px;
+  gap: 24px;
 }
 
-.channelInfoContainer {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-top: 80px;
+.channelPage__photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 100px;
+  object-fit: cover;
+  margin-right: 20px;
+  background-color: #e0e0e0;
 }
 
-.rightsButton {
-    width: 170px;
+.channelPage__iconPhoto {
+  font-size: 120px;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100px;
+  background-color: #e0e0e0;
+  margin-right: 20px;
+  color: #555;
+}
+
+.channelPage__stats {
+  margin-left: 0;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.channelPage__followButton {
+  padding: 10px 24px;
+  font-size: 16px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-right: 10px;
+  transition: background 0.2s;
+}
+
+.channelPage__followButton:hover {
+  background: #333;
+}
+
+.channelPage__rightsButton {
+  width: 170px;
+  margin-left: 10px;
+  background-color: #444;
+  color: #fff;
+}
+
+.channelPage__editProfileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+
+.channelPage__editProfileForm input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.channelPage__editProfileForm button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.channelPage__editProfileForm button:hover {
+  background-color: #333;
+}
+
+.channelPage__modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.channelPage__modalContent {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.channelPage__modalContent h3 {
+  margin: 0;
+  text-align: center;
+}
+
+.channelPage__modalContent input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.channelPage__modalActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.channelPage__modalActions button {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.channelPage__modalActions button:first-child {
+  background-color: black;
+  color: white;
+}
+
+.channelPage__modalActions .channelPage__cancelButton {
+  background-color: #e0e0e0;
+}
+
+.channelPage__videosContainer {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+@media (max-width: 700px) {
+  .channelPage__infoContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .channelPage__photo,
+  .channelPage__iconPhoto {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  .channelPage__modalContent {
+    width: 95vw;
+    padding: 16px;
+  }
+  .channelPage__editProfileForm {
+    width: 95vw;
+    padding: 12px;
+  }
+  .channelPage__videosContainer {
+    gap: 12px;
+  }
+}
+.channelPage__followButton:focus,
+.channelPage__modalActions button:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
 }

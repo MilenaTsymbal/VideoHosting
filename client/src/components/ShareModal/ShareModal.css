@@ -1,82 +1,113 @@
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
+.shareModal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
 
-.modalContainer {
-    background-color: white;
-    border: 1px solid grey;
-    border-radius: 4px;
-    padding: 20px;
-    width: 350px;
-    height: 200px;
-    z-index: 1000;
-    position: relative;
+.shareModal__container {
+  background-color: #fff;
+  border: 1px solid #888;
+  border-radius: 8px;
+  padding: 24px 20px 20px 20px;
+  width: 350px;
+  min-height: 180px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-sizing: border-box;
 }
 
-.closeButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
+.shareModal__closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+.shareModal__closeBtn:hover {
+  color: #222;
 }
 
-.shareInput {
-    width: 80%;
-    height: 30px;
-    font-size: 14px;
-    font-family: 'Montserrat', sans-serif;
-    padding: 5px;
+.shareModal__title {
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.1rem;
+  text-align: left;
 }
 
-.shareText {
-    font-weight: 600;
-    margin-top: 10px;
-    margin-bottom: 10px;
+.shareModal__inputRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 8px;
 }
 
-.dropdown {
-    list-style: none;
-    border: 1px solid #ccc;
-    max-height: 120px;
-    background: #fff;
-    position: absolute;
-    width: 247px;
-    z-index: 10;
-}
-  
-.dropdownItem {
-    width: 246px;
-    cursor: pointer;
-    padding: 5px;
-    font-size: 14px;
+.shareModal__input {
+  flex: 1 1 0;
+  height: 32px;
+  font-size: 15px;
+  font-family: "Montserrat", sans-serif;
+  padding: 5px 10px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  box-sizing: border-box;
 }
 
-.dropdownItem:hover {
-    background-color: #f0f0f0;
+.shareModal__shareBtn {
+  width: 80px;
+  height: 32px;
+  background-color: #000;
+  border-radius: 20px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: opacity 0.2s, background 0.2s;
+}
+.shareModal__shareBtn:disabled {
+  background: #888;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.shareModal__shareBtn:hover:not(:disabled) {
+  opacity: 0.7;
 }
 
-.shareButton {
-    width: 18%;
-    margin-left: 2%;
-    height: 30px;
-    background-color: black;
-    border-radius: 20px;
-    color: #fff;
-    cursor: pointer;
-} 
+.shareModal__authWarning {
+  color: #e53935;
+  margin-top: 10px;
+  font-size: 14px;
+}
 
-.shareButton:hover {
-    opacity: 0.6;
+.shareModal__error {
+  color: #e53935;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.shareModal__success {
+  color: #388e3c;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.shareModal__closeBtn:focus,
+.shareModal__shareBtn:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
 }

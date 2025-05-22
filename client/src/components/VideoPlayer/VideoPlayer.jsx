@@ -1,46 +1,92 @@
-import React, { useState } from 'react';
-import './VideoPlayer.css';
-import CommentCard from '../CommentCard/CommentCard.jsx';
-import CommentField from '../CommentField/CommentField.jsx';
-import Video from "../../videos/videoplayback.mp4";
-import { Link } from 'react-router-dom';
-import ShareModal from '../ShareModal/ShareModal.jsx';
+import React, { useState } from "react";
+import "./VideoPlayer.css";
+import { Link } from "react-router-dom";
+import ShareModal from "../ShareModal/ShareModal.jsx";
+import DeleteIcon from "../../assets/deleteIcon.png";
+import formatVideoDate from "../../../../server/utils/formatDate.js";
 
-function VideoPlayer() {
+function VideoPlayer({ video, isOwner, isAdmin, onDeleteVideo }) {
   const [isModalOpen, setModalOpen] = useState(false);
+
+  if (!video) return null;
 
   const toggleModal = () => setModalOpen(!isModalOpen);
 
   return (
-    <div>
-      {isModalOpen && <ShareModal onClose={toggleModal} />}
-      <video src={Video} controls poster="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlGW_JZyoiq4vsQ_6VSts_ZcVtd7WVjiLJTA&s"></video>
-      <p className="videoName">Video name</p>
-      <div className='videoContainer' style={{ justifyContent: 'space-between' }}>
-        <div className='videoContainer'>
-          <Link to="/channel">
-            <img className="avatar" src="https://m.media-amazon.com/images/M/MV5BZjQ1YTZmMjItZmZkMC00MGVmLTk1OTUtNzQzZTJjZGM1NjVlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="" />
+    <div className="videoPlayer__wrapper">
+      {isModalOpen && <ShareModal videoId={video._id} onClose={toggleModal} />}
+      <video
+        className="videoPlayer__video"
+        src={`http://localhost:5000/${video.videoUrl.replace(/\\/g, "/")}`}
+        controls
+        poster={
+          video.posterUrl
+            ? `http://localhost:5000/${video.posterUrl.replace(/\\/g, "/")}`
+            : ""
+        }
+      ></video>
+      <p className="videoPlayer__title">{video.title}</p>
+      <div className="videoPlayer__metaRow">
+        <div className="videoPlayer__authorBlock">
+          <Link to={`/channel/${video.author?.username}`}>
+            <img
+              className="videoPlayer__avatar"
+              src={
+                video.author?.avatarUrl ||
+                "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+              }
+              alt="Channel avatar"
+            />
           </Link>
-          <Link to="/channel" className='nickname'>Author nickname</Link>
-          <button className="followButton">Follow</button>
+          <Link
+            to={`/channel/${video.author?.username}`}
+            className="videoPlayer__nickname"
+          >
+            {video.author?.username}
+          </Link>
         </div>
-
-        <img 
-          className="shareIcon" 
-          src="https://img.icons8.com/?size=35&id=11504&format=png&color=000000" 
-          alt="Share" 
-          onClick={toggleModal}
-          style={{ cursor: 'pointer' }}
-        />
+        <div className="videoPlayer__actions">
+          <button
+            className="videoPlayer__actionBtn"
+            aria-label="Share video"
+            title="Share"
+            type="button"
+            onClick={toggleModal}
+          >
+            <img
+              className="videoPlayer__shareIcon"
+              src="https://img.icons8.com/?size=35&id=11504&format=png&color=000000"
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
+          {(isOwner || isAdmin) && (
+            <button
+              className="videoPlayer__actionBtn"
+              aria-label="Delete video"
+              title="Delete"
+              type="button"
+              onClick={() => {
+                if (
+                  window.confirm("Are you sure you want to delete this video?")
+                ) {
+                  onDeleteVideo(video._id);
+                }
+              }}
+            >
+              <img
+                className="videoPlayer__deleteIcon"
+                src={DeleteIcon}
+                alt=""
+                aria-hidden="true"
+              />
+            </button>
+          )}
+        </div>
       </div>
-      <CommentField />
-      <CommentCard />
-      <CommentCard />
-      <CommentCard />
-      <CommentCard />
-      <CommentCard />
-      <CommentCard />
-      <CommentCard />
+      <div className="videoPlayer__published">
+        Published: {formatVideoDate(video.createdAt)}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,28 @@
-.notificationsContainer {
-    text-align: center;
-    padding-top: 30px;
+.notificationPage__container {
+  text-align: center;
+  padding-top: 30px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.notificationPage__title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: #222;
+  text-align: center;
+}
+
+.notificationPage__empty {
+  color: #888;
+  font-size: 18px;
+  margin-top: 24px;
+}
+
+.notificationPage__list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: stretch;
+  margin-top: 18px;
 }

@@ -1,42 +1,56 @@
-.notificationContainer {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    margin-top: 25px;
-    justify-content: space-between;
+.notificationCard__container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  margin-top: 25px;
+  justify-content: space-between;
 }
 
-.notificationMainInfo {
-    width: 90%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+.notificationCard__mainInfo {
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.notificationTextContainer {
-    margin-left: 10px; 
+.notificationCard__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-.notificationAuthor {
-    all: unset;
-    color: #777;
-    font-weight: 600;
-    font-size: 14px;
-    margin: 0;
-    cursor: pointer;
+.notificationCard__textContainer {
+  margin-left: 10px;
 }
 
-.notificationText {
-    margin: 0;
-    margin-top: 5px;
+.notificationCard__author {
+  all: unset;
+  color: #777;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  cursor: pointer;
 }
 
-.tickIcon {
-    width: 35px;
-    height: 35px;
-    cursor: pointer;
+.notificationCard__text {
+  margin: 0;
+  margin-top: 5px;
+  font-size: 15px;
+  color: #222;
+  word-break: break-word;
 }
 
-.tickIcon:hover {
-    opacity: 0.6;
+.notificationCard__author {
+  color: #777;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.notificationCard__author:hover {
+  color: #222;
+  text-decoration: underline;
 }

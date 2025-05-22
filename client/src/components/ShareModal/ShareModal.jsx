@@ -1,65 +1,82 @@
-import { useState } from 'react';
-import './ShareModal.css';
+import { useState } from "react";
+import axios from "axios";
+import "./ShareModal.css";
 
-function ShareModal({ onClose }) {
-  const [search, setSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState('');
+function ShareModal({ videoId, onClose }) {
+  const [search, setSearch] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const users = [
-    { id: 1, nickname: 'john_doe' },
-    { id: 2, nickname: 'jane_smith' },
-    { id: 3, nickname: 'catlover99' },
-    { id: 4, nickname: 'videoFan42' },
-    { id: 5, nickname: 'admin' },
-  ];
-
-  const filteredUsers = users.filter((user) =>
-    user.nickname.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleSelect = (nickname) => {
-    setSelectedUser(nickname);
-    setSearch(nickname); 
-  };
-
-  const handleShare = () => {
-    if (selectedUser) {
-      alert(`Video link shared with ${selectedUser}!`);
-      onClose();
+  const handleShare = async () => {
+    setError("");
+    setSuccess("");
+    if (!selectedUser) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `/api/videos/${videoId}/share`,
+        { toUserId: selectedUser },
+        { headers: { Authorization: token } }
+      );
+      setSuccess(`Video shared with ${selectedUser}!`);
+      setTimeout(onClose, 1200);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to share video");
     }
   };
 
   return (
-    <div className="modalOverlay" onClick={onClose}>
-      <div className="modalContainer" onClick={(e) => e.stopPropagation()}>
-        <button className="closeButton" onClick={onClose}>X</button>
-        <p className='shareText'>Share this video with a user:</p>
-        <input
-          className='shareInput'
-          type="text"
-          placeholder="Type a username..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {search && (
-          <ul className="dropdown">
-            {filteredUsers.map((user) => (
-              <li
-                key={user.id}
-                onClick={() => handleSelect(user.nickname)}
-                className="dropdownItem"
-              >
-                {user.nickname}
-              </li>
-            ))}
-            {filteredUsers.length === 0 && (
-              <li className="dropdownItem">No users found</li>
-            )}
-          </ul>
-        )}
-        <button className="shareButton" onClick={handleShare} disabled={!selectedUser}>
-          Share
+    <div
+      className="shareModal__overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shareModal__title"
+      onClick={onClose}
+    >
+      <div
+        className="shareModal__container"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          className="shareModal__closeBtn"
+          onClick={onClose}
+          aria-label="Close"
+          type="button"
+        >
+          ×
         </button>
+        <p className="shareModal__title" id="shareModal__title">
+          Share this video with a user:
+        </p>
+        <div className="shareModal__inputRow">
+          <input
+            className="shareModal__input"
+            type="text"
+            placeholder="Type a username..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setSelectedUser(e.target.value);
+              setError("");
+              setSuccess("");
+            }}
+          />
+          <button
+            className="shareModal__shareBtn"
+            onClick={handleShare}
+            disabled={!selectedUser}
+          >
+            Share
+          </button>
+        </div>
+        {localStorage.getItem("token") ? null : (
+          <div className="shareModal__authWarning">
+            Only authorized users can share videos.
+          </div>
+        )}
+        {error && <div className="shareModal__error">{error}</div>}
+        {success && <div className="shareModal__success">{success}</div>}
       </div>
     </div>
   );
