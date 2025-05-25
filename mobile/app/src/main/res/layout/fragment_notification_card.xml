@@ -13,7 +13,6 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/avatar_shape"
-        android:src="@drawable/ic_avatar"
         android:clipToOutline="true"
         android:scaleType="centerCrop"
         android:layout_marginEnd="10dp" />
@@ -25,19 +24,19 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/usernameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#808080"
             android:textSize="14sp"
-            android:text="Author name"
             android:fontFamily="@font/montserrat_medium" />
 
         <TextView
+            android:id="@+id/messageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#000000"
             android:textSize="18sp"
-            android:text="Comment text"
             android:fontFamily="@font/montserrat_regular" />
 
     </LinearLayout>

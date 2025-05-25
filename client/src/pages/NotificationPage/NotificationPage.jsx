@@ -15,6 +15,7 @@ function NotificationPage() {
       })
       .then((res) => setNotifications(res.data))
       .catch(() => setNotifications([]));
+    console.log(notifications)
   }, [token]);
 
   return (

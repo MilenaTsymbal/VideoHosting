@@ -8,14 +8,24 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.mobile.api.RetrofitClient
 import com.example.mobile.databinding.ActivityLoginBinding
 import com.example.mobile.databinding.FragmentNotificationCardBinding
+import com.example.mobile.dto.auth.LoginDto
+import com.example.mobile.dto.auth.LoginResponse
+import es.dmoral.toasty.Toasty
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var _binding: ActivityLoginBinding
@@ -35,9 +45,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         _binding.loginButton.setOnClickListener {
-            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+            login()
         }
 
         val registerTextView = findViewById<TextView>(R.id.registerTextView)
@@ -60,5 +68,64 @@ class LoginActivity : AppCompatActivity() {
         registerTextView.text = spannable
         registerTextView.movementMethod = LinkMovementMethod.getInstance()
         registerTextView.highlightColor = Color.TRANSPARENT
+    }
+
+    fun login(){
+
+        val loginDto = LoginDto(
+            email = _binding.emailEditText.text.toString(),
+            password = _binding.passwordEditText.text.toString(),
+        )
+
+        val authApi = RetrofitClient.getInstance().authApi
+
+        authApi.login(loginDto).enqueue(object :
+            Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                if (response.isSuccessful) {
+                    val loginResponse = response.body()
+
+                    val sharedPref = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+                    with(sharedPref.edit()) {
+                        putString("token", loginResponse?.token)
+                        putString("_id", loginResponse?.user?._id)
+                        putString("username", loginResponse?.user?.username)
+                        putString("email", loginResponse?.user?.email)
+                        putString("avatarUrl", loginResponse?.user?.avatarUrl)
+                        apply()
+                    }
+
+                    Toasty.success(this@LoginActivity,
+                        "You logged in successfully!", Toast.LENGTH_SHORT, true).show()
+                    Log.d("Login", "User successfully logged in: $loginResponse")
+
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    val errorMessage = try {
+                        val errorBody = response.errorBody()?.string()
+                        JSONObject(errorBody).optString("message", "Login failed")
+                    } catch (e: Exception) {
+                        "Login failed"
+                    }
+
+                    Toasty.error(
+                        this@LoginActivity,
+                        errorMessage,
+                        Toast.LENGTH_SHORT,
+                        true
+                    ).show()
+                    Log.e("Login", "Response error: ${response.message()}")
+                    Log.e("Login", "Response failed: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                Toasty.error(this@LoginActivity, "Response failed"
+                    , Toast.LENGTH_SHORT, true).show()
+                Log.e("Login", "Failed: ${t.message}")
+            }
+        })
     }
 }

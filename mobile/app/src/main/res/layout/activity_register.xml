@@ -72,6 +72,7 @@
             android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_regular"
             android:textSize="18sp"
+            android:inputType="textPassword"
             android:hint="Enter password" />
 
         <TextView
@@ -89,6 +90,7 @@
             android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_regular"
             android:textSize="18sp"
+            android:inputType="textPassword"
             android:hint="Enter password again" />
 
         <Button

@@ -12,6 +12,11 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@+id/navigation_video"
+        android:name="com.example.mobile.ui.video.VideoFragment"
+        android:label="Video"
+        tools:layout="@layout/fragment_video" />
+    <fragment
         android:id="@+id/navigation_notifications"
         android:name="com.example.mobile.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
