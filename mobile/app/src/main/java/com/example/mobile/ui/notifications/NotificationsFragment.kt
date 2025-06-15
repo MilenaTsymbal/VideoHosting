@@ -1,28 +1,18 @@
 package com.example.mobile.ui.notifications
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import com.bumptech.glide.Glide
-import com.example.mobile.LoginActivity
 import com.example.mobile.R
-import com.example.mobile.RegisterActivity
 import com.example.mobile.api.RetrofitClient
-import com.example.mobile.databinding.FragmentNotificationCardBinding
 import com.example.mobile.databinding.FragmentNotificationsBinding
 import com.example.mobile.dto.user.NotificationsResponse
 import com.example.mobile.ui.notificationCard.NotificationCardFragment
 import es.dmoral.toasty.Toasty
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -31,7 +21,7 @@ class NotificationsFragment : Fragment() {
 
     private lateinit var binding: FragmentNotificationsBinding
     val notifications = listOf("Notification 1", "Notification 2", "Notification 3")
-    private lateinit var notificationsResponse : List<NotificationsResponse>
+    private lateinit var notificationsResponse: List<NotificationsResponse>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,7 +40,10 @@ class NotificationsFragment : Fragment() {
 
         val userApi = RetrofitClient.getInstance().userApi
         userApi.getNotifications(token).enqueue(object : Callback<List<NotificationsResponse>> {
-            override fun onResponse(call: Call<List<NotificationsResponse>>, response: Response<List<NotificationsResponse>>) {
+            override fun onResponse(
+                call: Call<List<NotificationsResponse>>,
+                response: Response<List<NotificationsResponse>>
+            ) {
                 if (response.isSuccessful && response.body() != null) {
                     val notifications = response.body()!!
 
@@ -84,12 +77,18 @@ class NotificationsFragment : Fragment() {
 
                     transaction.commit()
                 } else {
-                    Toasty.error(requireContext(), "Error: ${response.code()}", Toast.LENGTH_SHORT, true).show()
+                    Toasty.error(
+                        requireContext(),
+                        "Error: ${response.code()}",
+                        Toast.LENGTH_SHORT,
+                        true
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<List<NotificationsResponse>>, t: Throwable) {
-                Toasty.error(requireContext(), "Failure: ${t.message}", Toast.LENGTH_SHORT, true).show()
+                Toasty.error(requireContext(), "Failure: ${t.message}", Toast.LENGTH_SHORT, true)
+                    .show()
             }
         })
     }

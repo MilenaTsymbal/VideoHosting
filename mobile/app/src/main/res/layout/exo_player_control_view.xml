@@ -1,60 +1,66 @@
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@id/exo_controller"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:foregroundGravity="bottom"
-    android:background="#CC000000">
+    android:background="#CC000000"
+    android:foregroundGravity="bottom">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_gravity="bottom"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
 
-        <!-- Play/Pause -->
         <ImageButton
             android:id="@id/exo_play"
-            style="@style/ExoMediaButton.Play"/>
+            style="@style/ExoMediaButton.Play" />
 
         <ImageButton
             android:id="@id/exo_pause"
             style="@style/ExoMediaButton.Pause"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
-        <!-- Current Position -->
         <TextView
-            android:id="@+id/exo_position"
+            android:id="@id/exo_position"
             style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:minWidth="40dp"
             android:textColor="@android:color/white" />
 
-        <!-- Time Bar -->
         <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@id/exo_progress"
+            style="@style/ExoStyledControls.TimeBar"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="24dp"
-            style="@style/ExoStyledControls.TimeBar"/>
+            android:layout_height="26dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1" />
 
-        <!-- Duration -->
         <TextView
-            android:id="@+id/exo_duration"
+            android:id="@id/exo_duration"
             style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:minWidth="40dp"
             android:textColor="@android:color/white" />
 
-        <!-- Fullscreen Toggle -->
         <ImageButton
             android:id="@+id/exo_fullscreen_button"
             style="@style/ExoMediaButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_fullscreen_toggle"
-            android:padding="8dp" />
+            android:layout_marginStart="8dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_fullscreen_toggle" />
 
     </LinearLayout>
 </FrameLayout>

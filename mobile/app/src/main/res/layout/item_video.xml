@@ -15,44 +15,44 @@
             android:id="@+id/videoPoster"
             android:layout_width="match_parent"
             android:layout_height="180dp"
-            android:scaleType="centerCrop"
-            android:background="#eee" />
+            android:background="#eee"
+            android:scaleType="centerCrop" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
             android:gravity="center_vertical"
-            android:layout_marginTop="10dp">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/authorAvatar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:scaleType="centerCrop"
-                android:background="@drawable/avatar_shape" />
+                android:background="@drawable/avatar_shape"
+                android:scaleType="centerCrop" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="10dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/videoTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
+                    android:textColor="#222"
                     android:textSize="16sp"
-                    android:textColor="#222" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/authorName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="#888" />
+                    android:textColor="#888"
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

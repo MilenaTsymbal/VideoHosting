@@ -15,19 +15,18 @@
             android:id="@+id/TitleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="26dp"
             android:fontFamily="@font/montserrat_bold"
-            android:textSize="24sp"
+            android:gravity="center"
             android:text="@string/notifications"
             android:textColor="@color/black"
-            android:gravity="center"
-            android:layout_marginBottom="26dp" />
+            android:textSize="24sp" />
 
         <LinearLayout
             android:id="@+id/notificationCardFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
+            android:orientation="vertical"></LinearLayout>
 
     </LinearLayout>
 

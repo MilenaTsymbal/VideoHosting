@@ -72,4 +72,5 @@ dependencies {
     implementation("com.google.android.exoplayer:extension-cast:2.19.1")
     implementation("com.google.android.exoplayer:extension-mediasession:2.19.1")
     implementation("com.google.android.exoplayer:extension-okhttp:2.19.1")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }

@@ -2,7 +2,10 @@ package com.example.mobile.ui.video
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -13,9 +16,6 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.graphics.drawable.ColorDrawable
-import android.graphics.Color
-import android.view.ViewGroup
 
 class ShareVideoDialog(
     context: Context,

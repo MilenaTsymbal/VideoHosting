@@ -21,9 +21,23 @@
         android:name="com.example.mobile.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.mobile.ui.channel.ChannelFragment"
+        android:label="@string/profile"
+        tools:layout="@layout/fragment_channel" />
+
     <fragment
         android:id="@+id/navigation_addVideo"
         android:name="com.example.mobile.ui.addVideo.AddVideoFragment"
         android:label="Add video"
         tools:layout="@layout/fragment_add_video" />
+
+    <fragment
+        android:id="@+id/navigation_channel"
+        android:name="com.example.mobile.ui.channel.ChannelFragment"
+        android:label="Channel"
+        tools:layout="@layout/fragment_channel" />
+
 </navigation>

@@ -8,35 +8,35 @@
         android:id="@+id/commentAvatar"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:scaleType="centerCrop"
-        android:background="@drawable/avatar_shape" />
+        android:background="@drawable/avatar_shape"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="8dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/commentAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/commentText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="#222" />
+            android:textColor="#222"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/commentDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="#888" />
+            android:textColor="#888"
+            android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

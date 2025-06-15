@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mobile.R
 import com.example.mobile.api.RetrofitClient
 import com.example.mobile.databinding.FragmentHomeBinding
 import com.example.mobile.dto.video.Video
@@ -16,9 +17,6 @@ import com.example.mobile.dto.video.VideoListResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.Instant
-import com.example.mobile.R
-import com.example.mobile.ui.home.VideoAdapter
 
 class HomeFragment : Fragment() {
 
@@ -58,21 +56,27 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Обработка добавления видео
-        parentFragmentManager.setFragmentResultListener("add_video_local", viewLifecycleOwner) { _, bundle ->
-            val newVideo = bundle.getParcelable<Video>("new_video") ?: return@setFragmentResultListener
-            videos.add(0, newVideo) // Добавляем новое видео в начало списка
-            adapter.notifyItemInserted(0) // Уведомляем адаптер
-            binding.recyclerView.scrollToPosition(0) // Прокручиваем к началу списка
+        parentFragmentManager.setFragmentResultListener(
+            "add_video_local",
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val newVideo =
+                bundle.getParcelable<Video>("new_video") ?: return@setFragmentResultListener
+            videos.add(0, newVideo)
+            adapter.notifyItemInserted(0)
+            binding.recyclerView.scrollToPosition(0)
         }
 
-        // Обработка удаления видео
-        parentFragmentManager.setFragmentResultListener("delete_video_local", viewLifecycleOwner) { _, bundle ->
-            val deletedVideoId = bundle.getString("deleted_video_id") ?: return@setFragmentResultListener
+        parentFragmentManager.setFragmentResultListener(
+            "delete_video_local",
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val deletedVideoId =
+                bundle.getString("deleted_video_id") ?: return@setFragmentResultListener
             val index = videos.indexOfFirst { it._id == deletedVideoId }
             if (index != -1) {
-                videos.removeAt(index) // Удаляем видео из списка
-                adapter.notifyItemRemoved(index) // Уведомляем адаптер
+                videos.removeAt(index)
+                adapter.notifyItemRemoved(index)
             }
         }
 
@@ -110,37 +114,54 @@ class HomeFragment : Fragment() {
         if (isLoading || !hasMore) return
         isLoading = true
 
-        val timestamp = System.currentTimeMillis() // Уникальный параметр для игнорирования кэша
-        RetrofitClient.getInstance().videoApi.listVideos(page = page, limit = 10, timestamp = timestamp)
-            .enqueue(object : Callback<VideoListResponse> {
-                override fun onResponse(call: Call<VideoListResponse>, response: Response<VideoListResponse>) {
-                    if (response.isSuccessful && response.body() != null) {
-                        val newVideos = response.body()!!.videos
+        val timestamp = System.currentTimeMillis()
+        Log.d("HomeFragment", "Loading videos - page: $page, timestamp: $timestamp")
 
-                        if (page == 1) {
-                            // Очищаем список только при загрузке первой страницы
-                            videos.clear()
+        RetrofitClient.getInstance().videoApi.listVideos(
+            page = page,
+            limit = 10,
+            timestamp = timestamp
+        )
+            .enqueue(object : Callback<VideoListResponse> {
+                override fun onResponse(
+                    call: Call<VideoListResponse>,
+                    response: Response<VideoListResponse>
+                ) {
+                    Log.d("HomeFragment", "Video request URL: ${call.request().url}")
+                    Log.d("HomeFragment", "Response code: ${response.code()}")
+                    Log.d("HomeFragment", "Response body: ${response.body()}")
+
+                    if (response.isSuccessful) {
+                        val newVideos = response.body()?.videos ?: emptyList()
+                        Log.d("HomeFragment", "Received ${newVideos.size} videos")
+                        newVideos.forEachIndexed { index, video ->
+                            Log.d(
+                                "HomeFragment",
+                                "Video $index: id=${video._id}, title=${video.title}, author=${video.author.username}"
+                            )
                         }
 
-                        // Добавляем только уникальные видео
-                        val existingIds = videos.map { it._id }.toSet()
-                        val uniqueVideos = newVideos.filter { it._id !in existingIds }
-                        videos.addAll(uniqueVideos)
+                        if (page == 1) {
+                            videos.clear()
+                            Log.d("HomeFragment", "Cleared existing videos")
+                        }
+                        videos.addAll(newVideos)
+                        Log.d("HomeFragment", "Total videos now: ${videos.size}")
 
-                        // Уведомляем адаптер об изменениях
                         adapter.notifyDataSetChanged()
-
-                        // Проверяем, есть ли ещё данные для загрузки
-                        hasMore = newVideos.isNotEmpty()
-                        if (hasMore) page++
+                        hasMore = newVideos.size == 10
+                        Log.d("HomeFragment", "Has more videos: $hasMore")
                     } else {
-                        Log.e("HomeFragment", "Failed to fetch videos: ${response.errorBody()?.string()}")
+                        Log.e(
+                            "HomeFragment",
+                            "Failed to load videos: ${response.errorBody()?.string()}"
+                        )
                     }
                     isLoading = false
                 }
 
                 override fun onFailure(call: Call<VideoListResponse>, t: Throwable) {
-                    Log.e("HomeFragment", "Video list load error: ${t.message}")
+                    Log.e("HomeFragment", "Network error loading videos: ${t.message}", t)
                     isLoading = false
                 }
             })

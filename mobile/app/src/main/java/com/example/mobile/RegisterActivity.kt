@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.mobile.api.RetrofitClient
-import com.example.mobile.databinding.ActivityLoginBinding
 import com.example.mobile.databinding.ActivityRegisterBinding
 import com.example.mobile.dto.auth.RegisterDto
 import es.dmoral.toasty.Toasty

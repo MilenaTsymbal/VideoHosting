@@ -113,7 +113,6 @@ exports.list = async (req, res) => {
 
     const response = { videos, total, page, pages: Math.ceil(total / limit) };
 
-    // Сохраняем данные в кэш
     cache.set(cacheKey, response);
 
     res.json(response);

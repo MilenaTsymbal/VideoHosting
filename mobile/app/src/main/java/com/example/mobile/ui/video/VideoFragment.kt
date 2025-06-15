@@ -1,48 +1,41 @@
 package com.example.mobile.ui.video
 
-
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.os.Bundle
 import android.content.res.Configuration
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import com.example.mobile.R
 import com.example.mobile.api.RetrofitClient
 import com.example.mobile.databinding.FragmentVideoBinding
 import com.example.mobile.dto.video.Comment
 import com.example.mobile.dto.video.CommentRequest
+import com.example.mobile.dto.video.CommentsResponse
 import com.example.mobile.dto.video.LikeDislikeResponse
 import com.example.mobile.dto.video.Video
-import com.example.mobile.R
 import com.example.mobile.util.CacheSingleton
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
+import es.dmoral.toasty.Toasty
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.example.mobile.dto.video.CommentsResponse
-import es.dmoral.toasty.Toasty
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class VideoFragment : Fragment() {
     private var _binding: FragmentVideoBinding? = null
@@ -67,15 +60,13 @@ class VideoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val prefs = requireContext()
-            .getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         currentUserId = prefs.getString("_id", null)
         currentUserRole = prefs.getString("role", null)
 
-        videoId = arguments?.getString("videoId")
-            ?: throw IllegalArgumentException("videoId is required")
+        videoId = arguments?.getString("videoId") ?: ""
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,334 +74,428 @@ class VideoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVideoBinding.inflate(inflater, container, false)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setHasOptionsMenu(true)
-        binding.commentsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        commentAdapter = CommentAdapter(comments)
-        binding.commentsRecyclerView.adapter = commentAdapter
-        loadVideo()
-        binding.sendCommentButton.setOnClickListener { sendComment() }
-        loadComments()
         return binding.root
     }
 
-    private fun loadVideo() {
-        RetrofitClient.getInstance().videoApi.getVideoById(videoId)
-            .enqueue(object : Callback<Video> {
-                override fun onResponse(call: Call<Video>, response: Response<Video>) {
-                    if (response.isSuccessful && response.body() != null) {
-                        video = response.body()!!
-                        bindVideo(video!!)
-                    }
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
-                override fun onFailure(call: Call<Video>, t: Throwable) {}
-            })
+        setupRecyclerView()
+        setupClickListeners()
+        loadVideo()
+        loadComments()
     }
 
-    private fun bindVideo(video: Video) {
-        player = ExoPlayer.Builder(requireContext())
-            .setMediaSourceFactory(DefaultMediaSourceFactory(getCacheDataSourceFactory()))
-            .build()
-        binding.playerView.player = player
+    private fun setupRecyclerView() {
+        commentAdapter = CommentAdapter(comments)
+        binding.commentsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.commentsRecyclerView.adapter = commentAdapter
+    }
 
-        Glide.with(this).asBitmap().load("http://10.0.2.2:5000/${video.posterUrl}")
-            .into(object : CustomTarget<android.graphics.Bitmap>() {
-                override fun onResourceReady(
-                    resource: android.graphics.Bitmap,
-                    transition: Transition<in android.graphics.Bitmap>?
-                ) {
-                    binding.playerView.defaultArtwork = BitmapDrawable(resources, resource)
-                }
+    private fun setupClickListeners() {
+        binding.sendCommentButton.setOnClickListener {
+            sendComment()
+        }
 
-                override fun onLoadCleared(placeholder: Drawable?) {}
-            })
+        binding.likeIcon.setOnClickListener {
+            handleLike(videoId)
+        }
 
-        val mediaItem = MediaItem.fromUri("http://10.0.2.2:5000/${video.videoUrl}")
-        player?.setMediaItem(mediaItem)
-        player?.playWhenReady = false
-        player?.prepare()
-
-        binding.videoTitle.text = video.title
-        binding.authorName.text = video.author.username
-        binding.publishDate.text = video.createdAt.substring(0, 10)
-        Glide.with(this).load(video.author.avatarUrl).placeholder(R.drawable.ic_avatar)
-            .into(binding.authorAvatar)
-
-        likeCount = video.likes.size
-        dislikeCount = video.dislikes.size
-        liked = currentUserId != null && video.likes.contains(currentUserId)
-        disliked = currentUserId != null && video.dislikes.contains(currentUserId)
-        setupLikeDislikeButtons(video)
-        setupDeleteButton(video)
+        binding.dislikeIcon.setOnClickListener {
+            handleDislike(videoId)
+        }
 
         binding.shareIcon.setOnClickListener {
             ShareVideoDialog(requireContext(), videoId) {
-        Toast.makeText(requireContext(), "Video shared!", Toast.LENGTH_SHORT).show()
-    }.show()
+                Toast.makeText(requireContext(), "Video shared!", Toast.LENGTH_SHORT).show()
+            }.show()
+        }
+    }
+
+    private fun loadVideo() {
+        val videoApi = RetrofitClient.getInstance().videoApi
+        videoApi.getVideoById(videoId).enqueue(object : Callback<Video> {
+            override fun onResponse(call: Call<Video>, response: Response<Video>) {
+                if (response.isSuccessful && response.body() != null) {
+                    video = response.body()!!
+                    bindVideo(video!!)
+                } else {
+                    Toast.makeText(requireContext(), "Failed to load video", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+
+            override fun onFailure(call: Call<Video>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun bindVideo(video: Video) {
+        binding.videoTitle.text = video.title
+        binding.authorName.text = video.author.username
+
+        try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val date = inputFormat.parse(video.createdAt)
+            binding.publishDate.text = date?.let { outputFormat.format(it) } ?: ""
+        } catch (e: Exception) {
+            binding.publishDate.text = ""
         }
 
-        loadComments()
-        binding.sendCommentButton.setOnClickListener { sendComment() }
-        binding.playerView.findViewById<ImageButton>(R.id.exo_fullscreen_button)
-            ?.setOnClickListener { toggleFullscreen() }
+        Glide.with(this)
+            .load(video.author.avatarUrl)
+            .placeholder(R.drawable.ic_avatar)
+            .into(binding.authorAvatar)
+
+        setupVideoPlayer(video)
+
+        setupLikeDislikeButtons(video)
+
+        setupDeleteButton(video)
+
+        binding.authorAvatar.setOnClickListener { navigateToChannel(video.author.username) }
+        binding.authorName.setOnClickListener { navigateToChannel(video.author.username) }
+    }
+
+    private fun setupVideoPlayer(video: Video) {
+        player = ExoPlayer.Builder(requireContext())
+            .setMediaSourceFactory(
+                DefaultMediaSourceFactory(getCacheDataSourceFactory())
+            )
+            .build()
+
+        binding.playerView.player = player
+
+        val videoUrl = "http://10.0.2.2:5000/${video.videoUrl}"
+        val mediaItem = MediaItem.fromUri(videoUrl)
+        player?.setMediaItem(mediaItem)
+        player?.prepare()
+        player?.playWhenReady = playWhenReady
+        player?.seekTo(playbackPosition)
+
+        val fullscreenButton =
+            binding.playerView.findViewById<ImageButton>(R.id.exo_fullscreen_button)
+        fullscreenButton?.setOnClickListener { toggleFullscreen() }
+    }
+
+    private fun navigateToChannel(username: String) {
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val currentUsername = prefs.getString("username", null)
+
+        val bundle = Bundle().apply {
+            putString("username", username)
+            putBoolean("isOwnProfile", username == currentUsername)
+        }
+        findNavController().navigate(R.id.navigation_channel, bundle)
     }
 
     private fun setupDeleteButton(video: Video) {
-        val isOwner = video.author._id == currentUserId
-        val isAdmin = currentUserRole == "admin"
+        val canDelete = (currentUserId == video.author._id) || (currentUserRole == "admin")
 
-        binding.deleteIcon.isVisible = isOwner || isAdmin
-
-        binding.deleteIcon.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Delete video")
-                .setMessage("Are you sure you want to delete this video?")
-                .setPositiveButton("Delete") { _, _ ->
-                    confirmDeleteVideo(video._id)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+        if (canDelete) {
+            binding.deleteIcon.visibility = View.VISIBLE
+            binding.deleteIcon.setOnClickListener {
+                confirmDeleteVideo(videoId)
+            }
+        } else {
+            binding.deleteIcon.visibility = View.GONE
         }
     }
 
     private fun confirmDeleteVideo(videoId: String) {
-        val token = requireContext().getSharedPreferences("auth_prefs", 0).getString("token", null)
-        if (token == null) {
-            Toast.makeText(requireContext(), "Login to delete", Toast.LENGTH_SHORT).show()
-            return
-        }
-        RetrofitClient.getInstance().videoApi.deleteVideo(videoId, token)
-            .enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(requireContext(), "Video deleted", Toast.LENGTH_SHORT).show()
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Video")
+            .setMessage("Are you sure you want to delete this video?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteVideo(videoId)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
-                        val bundle = Bundle().apply {
-                            putString("deleted_video_id", videoId)
-                        }
-                        parentFragmentManager.setFragmentResult(
-                            "delete_video_local",
-                            Bundle().apply { putString("deleted_video_id", videoId) }
-                        )
-                        findNavController().popBackStack(R.id.navigation_home, false)
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to delete", Toast.LENGTH_SHORT)
-                            .show()
+    private fun deleteVideo(videoId: String) {
+        val token = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            .getString("token", null) ?: return
+
+        val videoApi = RetrofitClient.getInstance().videoApi
+        videoApi.deleteVideo(videoId, token).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Video deleted successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    val bundle = Bundle().apply {
+                        putString("deleted_video_id", videoId)
                     }
-                }
+                    parentFragmentManager.setFragmentResult("delete_video_local", bundle)
 
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT)
+                    findNavController().popBackStack()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to delete video", Toast.LENGTH_SHORT)
                         .show()
                 }
-            })
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun loadComments() {
-        RetrofitClient.getInstance().videoApi
-            .getComments(videoId)
-            .enqueue(object : Callback<CommentsResponse> {
-                override fun onResponse(
-                    call: Call<CommentsResponse>,
-                    response: Response<CommentsResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        comments.clear()
-                        response.body()?.comments?.let { comments.addAll(it) }
-                        commentAdapter.notifyDataSetChanged()
-                    }
+        val videoApi = RetrofitClient.getInstance().videoApi
+        videoApi.getComments(videoId).enqueue(object : Callback<CommentsResponse> {
+            override fun onResponse(
+                call: Call<CommentsResponse>,
+                response: Response<CommentsResponse>
+            ) {
+                if (response.isSuccessful && response.body() != null) {
+                    comments.clear()
+                    comments.addAll(response.body()!!.comments)
+                    commentAdapter.notifyDataSetChanged()
                 }
+            }
 
-                override fun onFailure(call: Call<CommentsResponse>, t: Throwable) {
-                    Toasty.error(
-                        requireContext(),
-                        "Failed to load comments: ${t.message}",
-                        Toast.LENGTH_SHORT,
-                        true
-                    ).show()
-                }
-            })
+            override fun onFailure(call: Call<CommentsResponse>, t: Throwable) {
+                Log.e("VideoFragment", "Failed to load comments: ${t.message}")
+            }
+        })
     }
 
     private fun sendComment() {
         val commentText = binding.commentEditText.text.toString().trim()
         if (commentText.isEmpty()) return
 
-        val token = requireContext()
-            .getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val token = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
             .getString("token", null) ?: return
 
-        val request = CommentRequest(text = commentText)
-        
-        RetrofitClient.getInstance().videoApi
-            .addComment(videoId, request, "$token") // Добавляем Bearer префикс
-            .enqueue(object : Callback<Comment> {
-                override fun onResponse(call: Call<Comment>, response: Response<Comment>) {
-                    if (response.isSuccessful) {
-                        response.body()?.let { newComment ->
-                            comments.add(0, newComment)
-                            commentAdapter.notifyItemInserted(0)
-                            binding.commentEditText.text.clear()
-                            binding.commentsRecyclerView.scrollToPosition(0)
-                        }
-                    } else {
-                        Toasty.error(requireContext(), 
-                            "Failed to add comment: ${response.code()}", 
-                            Toast.LENGTH_SHORT, true).show()
-                    }
-                }
+        val commentRequest = CommentRequest(commentText)
+        val videoApi = RetrofitClient.getInstance().videoApi
 
-                override fun onFailure(call: Call<Comment>, t: Throwable) {
-                    Toasty.error(requireContext(), 
-                        "Network error: ${t.message}", 
-                        Toast.LENGTH_SHORT, true).show()
+        videoApi.addComment(videoId, commentRequest, token).enqueue(object : Callback<Comment> {
+            override fun onResponse(call: Call<Comment>, response: Response<Comment>) {
+                if (response.isSuccessful && response.body() != null) {
+                    comments.add(0, response.body()!!)
+                    commentAdapter.notifyItemInserted(0)
+                    binding.commentEditText.text.clear()
+                    binding.commentsRecyclerView.scrollToPosition(0)
+                } else {
+                    Toast.makeText(requireContext(), "Failed to add comment", Toast.LENGTH_SHORT)
+                        .show()
                 }
-            })
+            }
+
+            override fun onFailure(call: Call<Comment>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun getCacheDataSourceFactory(): CacheDataSource.Factory {
-        val simpleCache = CacheSingleton.getInstance(requireContext())
-        val upstreamFactory = DefaultDataSource.Factory(requireContext())
+        val cache = CacheSingleton.getInstance(requireContext())
+        val defaultDataSourceFactory = DefaultDataSource.Factory(requireContext())
+
         return CacheDataSource.Factory()
-            .setCache(simpleCache)
-            .setUpstreamDataSourceFactory(upstreamFactory)
-            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(defaultDataSourceFactory)
     }
 
     private fun toggleFullscreen() {
-        isFullscreen = !isFullscreen
-        val activity = requireActivity()
-        val playerView = binding.playerView
         if (isFullscreen) {
-            originalPlayerViewParams = playerView.layoutParams
-            originalParent = playerView.parent as ViewGroup
-            originalIndex = originalParent!!.indexOfChild(playerView)
-            originalParent!!.removeView(playerView)
-            val decor = activity.window.decorView as ViewGroup
-            val params = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            playerView.layoutParams = params
-            decor.addView(playerView)
-            activity.window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            hideOtherUIElements(true)
-            (activity as AppCompatActivity).supportActionBar?.hide()
-        } else {
-            val decor = activity.window.decorView as ViewGroup
-            decor.removeView(playerView)
-            originalParent?.addView(playerView, originalIndex)
-            playerView.layoutParams = originalPlayerViewParams
-            activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
+            originalParent?.let { parent ->
+                (binding.playerView.parent as? ViewGroup)?.removeView(binding.playerView)
+                if (originalIndex != -1) {
+                    parent.addView(binding.playerView, originalIndex)
+                } else {
+                    parent.addView(binding.playerView)
+                }
+                binding.playerView.layoutParams = originalPlayerViewParams
+            }
+
             hideOtherUIElements(false)
-            (activity as AppCompatActivity).supportActionBar?.show()
+            isFullscreen = false
+        } else {
+            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+            originalParent = binding.playerView.parent as? ViewGroup
+            originalPlayerViewParams = binding.playerView.layoutParams
+            originalIndex = originalParent?.indexOfChild(binding.playerView) ?: -1
+
+            originalParent?.removeView(binding.playerView)
+            val decorView = requireActivity().window.decorView as ViewGroup
+            decorView.addView(
+                binding.playerView, ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            )
+
+            hideOtherUIElements(true)
+            isFullscreen = true
         }
     }
 
     private fun hideOtherUIElements(hide: Boolean) {
-        binding.videoTitle.isVisible = !hide
-        binding.authorAvatar.isVisible = !hide
-        binding.authorName.isVisible = !hide
-        binding.publishDate.isVisible = !hide
-        binding.actionButtons.isVisible = !hide
-        binding.commentEditText.isVisible = !hide
-        binding.sendCommentButton.isVisible = !hide
-        binding.commentsRecyclerView.isVisible = !hide
-    }
+        val visibility = if (hide) View.GONE else View.VISIBLE
 
-    private fun handleLike(videoId: String) {
-        val token =
-            requireContext().getSharedPreferences("auth_prefs", 0).getString("token", null) ?: run {
-                Toast.makeText(requireContext(), "Login to like", Toast.LENGTH_SHORT).show()
-                return
-            }
-        RetrofitClient.getInstance().videoApi.likeVideo(videoId, token)
-            .enqueue(object : Callback<LikeDislikeResponse> {
-                override fun onResponse(
-                    call: Call<LikeDislikeResponse>,
-                    response: Response<LikeDislikeResponse>
-                ) {
-                    if (response.isSuccessful && response.body() != null) {
-                        val result = response.body()!!
-                        likeCount = result.likes
-                        dislikeCount = result.dislikes
-                        if (liked) liked = false else {
-                            liked = true; disliked = false
-                        }
-                        updateLikeDislikeUI()
-                    } else Toast.makeText(
-                        requireContext(),
-                        "Failed to like video",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+        val flags = if (hide) {
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        } else {
+            View.SYSTEM_UI_FLAG_VISIBLE
+        }
 
-                override fun onFailure(call: Call<LikeDislikeResponse>, t: Throwable) {
-                    Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            })
-    }
+        requireActivity().window.decorView.systemUiVisibility = flags
 
-    private fun handleDislike(videoId: String) {
-        val token =
-            requireContext().getSharedPreferences("auth_prefs", 0).getString("token", null) ?: run {
-                Toast.makeText(requireContext(), "Login to dislike", Toast.LENGTH_SHORT).show()
-                return
-            }
-        RetrofitClient.getInstance().videoApi.dislikeVideo(videoId, token)
-            .enqueue(object : Callback<LikeDislikeResponse> {
-                override fun onResponse(
-                    call: Call<LikeDislikeResponse>,
-                    response: Response<LikeDislikeResponse>
-                ) {
-                    if (response.isSuccessful && response.body() != null) {
-                        val result = response.body()!!
-                        likeCount = result.likes
-                        dislikeCount = result.dislikes
-                        if (disliked) disliked = false else {
-                            disliked = true; liked = false
-                        }
-                        updateLikeDislikeUI()
-                    } else Toast.makeText(
-                        requireContext(),
-                        "Failed to dislike video",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                override fun onFailure(call: Call<LikeDislikeResponse>, t: Throwable) {
-                    Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            })
+        val actionBar = (requireActivity() as? AppCompatActivity)?.supportActionBar
+        if (hide) {
+            actionBar?.hide()
+        } else {
+            actionBar?.show()
+        }
     }
 
     private fun setupLikeDislikeButtons(video: Video) {
-        binding.likeCountText.text = likeCount.toString()
-        binding.dislikeCountText.text = dislikeCount.toString()
-        updateLikeDislikeUI()
-        binding.likeIcon.setOnClickListener { handleLike(video._id) }
-        binding.dislikeIcon.setOnClickListener { handleDislike(video._id) }
+        currentUserId?.let { userId ->
+            liked = video.likes.contains(userId)
+            disliked = video.dislikes.contains(userId)
+            likeCount = video.likes.size
+            dislikeCount = video.dislikes.size
+
+            updateLikeDislikeUI()
+
+            binding.likeIcon.setOnClickListener {
+                handleLike(video._id)
+            }
+
+            binding.dislikeIcon.setOnClickListener {
+                handleDislike(video._id)
+            }
+        } ?: run {
+            likeCount = video.likes.size
+            dislikeCount = video.dislikes.size
+            binding.likeCountText.text = likeCount.toString()
+            binding.dislikeCountText.text = dislikeCount.toString()
+
+            binding.likeIcon.setImageResource(R.drawable.ic_like)
+            binding.dislikeIcon.setImageResource(R.drawable.ic_dislike)
+
+            binding.likeIcon.setOnClickListener(null)
+            binding.dislikeIcon.setOnClickListener(null)
+        }
     }
 
     private fun updateLikeDislikeUI() {
-        binding.likeIcon.setImageResource(if (liked) R.drawable.ic_like_active else R.drawable.ic_like)
-        binding.dislikeIcon.setImageResource(if (disliked) R.drawable.ic_dislike_active else R.drawable.ic_dislike)
+        binding.likeIcon.setImageResource(
+            if (liked) R.drawable.ic_like_active else R.drawable.ic_like
+        )
+
+        binding.dislikeIcon.setImageResource(
+            if (disliked) R.drawable.ic_dislike_active else R.drawable.ic_dislike
+        )
+
         binding.likeCountText.text = likeCount.toString()
         binding.dislikeCountText.text = dislikeCount.toString()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            findNavController().popBackStack(R.id.navigation_home, false)
-            return true
+    private fun handleLike(videoId: String) {
+        currentUserId?.let { userId ->
+            val token = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .getString("token", null) ?: return
+
+            RetrofitClient.getInstance().videoApi.likeVideo(videoId, token)
+                .enqueue(object : Callback<LikeDislikeResponse> {
+                    override fun onResponse(
+                        call: Call<LikeDislikeResponse>,
+                        response: Response<LikeDislikeResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            response.body()?.let { result ->
+                                likeCount = result.likes
+                                dislikeCount = result.dislikes
+
+                                liked = !liked
+                                if (liked && disliked) {
+                                    disliked = false
+                                }
+
+                                updateLikeDislikeUI()
+                            }
+                        } else {
+                            Toasty.error(
+                                requireContext(),
+                                "Failed to like video",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<LikeDislikeResponse>, t: Throwable) {
+                        Toasty.error(
+                            requireContext(),
+                            "Network error: ${t.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
+        } ?: run {
+            Toasty.info(requireContext(), "Please login to like videos", Toast.LENGTH_SHORT).show()
         }
-        return super.onOptionsItemSelected(item)
+    }
+
+    private fun handleDislike(videoId: String) {
+        currentUserId?.let { userId ->
+            val token = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .getString("token", null) ?: return
+
+            RetrofitClient.getInstance().videoApi.dislikeVideo(videoId, token)
+                .enqueue(object : Callback<LikeDislikeResponse> {
+                    override fun onResponse(
+                        call: Call<LikeDislikeResponse>,
+                        response: Response<LikeDislikeResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            response.body()?.let { result ->
+                                likeCount = result.likes
+                                dislikeCount = result.dislikes
+
+                                disliked = !disliked
+                                if (disliked && liked) {
+                                    liked = false
+                                }
+
+                                updateLikeDislikeUI()
+                            }
+                        } else {
+                            Toasty.error(
+                                requireContext(),
+                                "Failed to dislike video",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<LikeDislikeResponse>, t: Throwable) {
+                        Toasty.error(
+                            requireContext(),
+                            "Network error: ${t.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
+        } ?: run {
+            Toasty.info(requireContext(), "Please login to dislike videos", Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
     override fun onPause() {
@@ -418,7 +503,6 @@ class VideoFragment : Fragment() {
         player?.let {
             playbackPosition = it.currentPosition
             playWhenReady = it.playWhenReady
-            it.playWhenReady = false
             it.pause()
         }
     }
@@ -431,29 +515,20 @@ class VideoFragment : Fragment() {
         }
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         player?.release()
+        player = null
         _binding = null
-        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val activity = requireActivity() as AppCompatActivity
+
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            activity.supportActionBar?.hide()
-            requireActivity().findViewById<android.view.View>(R.id.nav_view)?.visibility = View.GONE
-            requireActivity().window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+            hideOtherUIElements(true)
         } else {
-            activity.supportActionBar?.show()
-            requireActivity().findViewById<android.view.View>(R.id.nav_view)?.visibility =
-                View.VISIBLE
-            requireActivity().window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            hideOtherUIElements(false)
         }
     }
 }

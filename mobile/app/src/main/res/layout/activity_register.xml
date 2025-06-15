@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/register"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/register"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.addVideo.AddVideoFragment">
@@ -9,27 +9,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_marginHorizontal="15dp"
         android:layout_marginTop="100dp"
-        android:layout_marginHorizontal="15dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/registerTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_bold"
-            android:textSize="24sp"
+            android:gravity="center"
             android:text="Register"
             android:textColor="@color/black"
-            android:gravity="center" />
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Email"
+            android:layout_marginTop="50dp"
             android:fontFamily="@font/montserrat_medium"
-            android:textSize="18sp"
-            android:layout_marginTop="50dp"/>
+            android:text="Email"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/emailEditText"
@@ -37,16 +37,16 @@
             android:layout_height="50dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_regular"
-            android:textSize="18sp"
-            android:hint="Enter your email" />
+            android:hint="Enter your email"
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Username"
+            android:layout_marginTop="25dp"
             android:fontFamily="@font/montserrat_medium"
-            android:textSize="18sp"
-            android:layout_marginTop="25dp"/>
+            android:text="Username"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/usernameEditText"
@@ -54,16 +54,16 @@
             android:layout_height="50dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_regular"
-            android:textSize="18sp"
-            android:hint="Enter your username" />
+            android:hint="Enter your username"
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Password"
+            android:layout_marginTop="25dp"
             android:fontFamily="@font/montserrat_medium"
-            android:textSize="18sp"
-            android:layout_marginTop="25dp"/>
+            android:text="Password"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/passwordEditText"
@@ -71,17 +71,17 @@
             android:layout_height="50dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_regular"
-            android:textSize="18sp"
+            android:hint="Enter password"
             android:inputType="textPassword"
-            android:hint="Enter password" />
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Repeat password"
+            android:layout_marginTop="25dp"
             android:fontFamily="@font/montserrat_medium"
-            android:textSize="18sp"
-            android:layout_marginTop="25dp"/>
+            android:text="Repeat password"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/repeatPasswordEditText"
@@ -89,18 +89,18 @@
             android:layout_height="50dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_regular"
-            android:textSize="18sp"
+            android:hint="Enter password again"
             android:inputType="textPassword"
-            android:hint="Enter password again" />
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/registerButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:text="Register"
+            android:background="@drawable/button_shape"
             android:fontFamily="@font/montserrat_medium"
-            android:background="@drawable/button_shape" />
+            android:text="Register" />
 
     </LinearLayout>
 
