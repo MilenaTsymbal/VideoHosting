@@ -46,7 +46,11 @@ class HomeFragment : Fragment() {
                 val lm = rv.layoutManager as LinearLayoutManager
                 val total = lm.itemCount
                 val last = lm.findLastVisibleItemPosition()
-                if (!isLoading && hasMore && last >= total - 3) loadVideos()
+                
+                if (!isLoading && hasMore && last >= total - 3) {
+                    Log.d("HomeFragment", "Loading more videos - current page: $page")
+                    loadVideos()
+                }
             }
         })
         loadVideos()
@@ -151,6 +155,10 @@ class HomeFragment : Fragment() {
                         adapter.notifyDataSetChanged()
                         hasMore = newVideos.size == 10
                         Log.d("HomeFragment", "Has more videos: $hasMore")
+                        
+                        if (hasMore) {
+                            page++
+                        }
                     } else {
                         Log.e(
                             "HomeFragment",

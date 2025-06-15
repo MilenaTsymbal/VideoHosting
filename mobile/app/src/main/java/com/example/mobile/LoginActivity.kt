@@ -92,6 +92,20 @@ class LoginActivity : AppCompatActivity() {
                         putString("username", loginResponse?.user?.username)
                         putString("email", loginResponse?.user?.email)
                         putString("avatarUrl", loginResponse?.user?.avatarUrl)
+                        loginResponse?.token?.let { token ->
+                            try {
+                                val payload = token.split(".")[1]
+                                val decodedBytes = android.util.Base64.decode(payload, android.util.Base64.URL_SAFE)
+                                val decodedString = String(decodedBytes)
+                                val jsonObject = org.json.JSONObject(decodedString)
+                                val role = jsonObject.optString("role", "user")
+                                putString("role", role)
+                                Log.d("Login", "Saved user role: $role")
+                            } catch (e: Exception) {
+                                Log.e("Login", "Failed to decode JWT: ${e.message}")
+                                putString("role", "user")
+                            }
+                        }
                         apply()
                     }
 
@@ -103,21 +117,20 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 } else {
-                    val errorMessage = try {
-                        val errorBody = response.errorBody()?.string()
-                        JSONObject(errorBody).optString("message", "Login failed")
-                    } catch (e: Exception) {
-                        "Login failed"
+                    val errorBody = response.errorBody()?.string()
+                    var errorMessage = "Login failed"
+                    
+                    if (!errorBody.isNullOrEmpty()) {
+                        try {
+                            val errorJson = JSONObject(errorBody)
+                            errorMessage = errorJson.optString("message", "Login failed")
+                        } catch (e: Exception) {
+                            Log.e("Login", "Error parsing error response: ${e.message}")
+                        }
                     }
-
-                    Toasty.error(
-                        this@LoginActivity,
-                        errorMessage,
-                        Toast.LENGTH_SHORT,
-                        true
-                    ).show()
-                    Log.e("Login", "Response error: ${response.message()}")
-                    Log.e("Login", "Response failed: ${response.message()}")
+                    
+                    Toasty.error(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT, true).show()
+                    Log.e("Login", "Login failed with response: $response")
                 }
             }
 
