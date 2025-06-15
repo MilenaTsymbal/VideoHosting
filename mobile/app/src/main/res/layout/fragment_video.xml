@@ -1,16 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.video.VideoFragment"
-    android:layout_marginTop="200dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/text"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-</FrameLayout>
+        <!-- Видео-плеер -->
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="12dp"
+            app:controller_layout_id="@layout/exo_player_control_view"
+            app:use_controller="true"
+            app:show_buffering="when_playing"
+            app:resize_mode="zoom"
+            app:default_artwork="@drawable/ic_launcher_foreground" />
+
+        <!-- Название видео -->
+        <TextView
+            android:id="@+id/videoTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <!-- Автор и дата -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <ImageView
+                android:id="@+id/authorAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/avatar_shape" />
+
+            <TextView
+                android:id="@+id/authorName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="#222"
+                android:layout_marginStart="10dp" />
+
+            <TextView
+                android:id="@+id/publishDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="#888"
+                android:layout_marginStart="16dp" />
+        </LinearLayout>
+
+        <!-- Кнопки лайк/дизлайк/удалить/поделиться -->
+        <LinearLayout
+            android:id="@+id/actionButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="start"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <!-- Like -->
+            <ImageView
+                android:id="@+id/likeIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_like"
+                android:contentDescription="Like"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <TextView
+                android:id="@+id/likeCountText"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:gravity="center_vertical"
+                android:text="0"
+                android:textSize="16sp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginStart="2dp" />
+
+            <!-- Dislike -->
+            <ImageView
+                android:id="@+id/dislikeIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_dislike"
+                android:contentDescription="Dislike"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <TextView
+                android:id="@+id/dislikeCountText"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:gravity="center_vertical"
+                android:text="0"
+                android:textSize="16sp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginStart="2dp" />
+
+            <!-- Delete (icon only, hidden by default) -->
+            
+            
+            <ImageView
+                android:id="@+id/shareIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_send"
+                android:contentDescription="Share"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+            
+            <ImageView
+                android:id="@+id/deleteIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="Delete"
+                android:padding="4dp"
+                android:visibility="gone"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+        </LinearLayout>
+
+        <!-- Блок комментариев -->
+        <EditText
+            android:id="@+id/commentEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add a comment..."
+            android:layout_marginTop="18dp" />
+
+        <!-- Кнопка отправки только иконкой -->
+        <ImageView
+            android:id="@+id/sendCommentButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_send"
+            android:contentDescription="Send"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
+</ScrollView>

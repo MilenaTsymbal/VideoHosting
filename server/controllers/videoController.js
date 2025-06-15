@@ -18,6 +18,12 @@ exports.uploadVideo = async (req, res) => {
 
     await newVideo.save();
 
+    cache.keys().forEach((key) => {
+      if (key.startsWith("videos_page_")) {
+        cache.del(key);
+      }
+    });
+
     const author = await User.findById(req.user._id);
     const followers = author.followers || [];
     for (const followerId of followers) {
@@ -70,6 +76,13 @@ exports.deleteVideo = async (req, res) => {
     }
 
     await video.deleteOne();
+
+    cache.keys().forEach((key) => {
+      if (key.startsWith("videos_page_")) {
+        cache.del(key);
+      }
+    });
+
     res.json({ message: "Video deleted" });
   } catch (err) {
     res
@@ -81,14 +94,12 @@ exports.deleteVideo = async (req, res) => {
 exports.list = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 9;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const cacheKey = `videos_page_${page}_limit_${limit}`;
 
+    const cacheKey = `videos_page_${page}_limit_${limit}`;
     const cached = cache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
+    if (cached) return res.json(cached);
 
     const [videos, total] = await Promise.all([
       Video.find()
@@ -100,20 +111,16 @@ exports.list = async (req, res) => {
       Video.countDocuments(),
     ]);
 
-    const result = {
-      videos,
-      total,
-      page,
-      pages: Math.ceil(total / limit),
-    };
+    const response = { videos, total, page, pages: Math.ceil(total / limit) };
 
-    cache.set(cacheKey, result);
-    res.json(result);
+    // Сохраняем данные в кэш
+    cache.set(cacheKey, response);
+
+    res.json(response);
   } catch (err) {
-    console.error("VIDEO LIST ERROR:", err);
     res
       .status(500)
-      .json({ message: "Error by getting video", error: err.message });
+      .json({ message: "Failed to fetch videos", error: err.message });
   }
 };
 
@@ -197,7 +204,11 @@ exports.likeVideo = async (req, res) => {
       video.likes.push(req.user._id);
     }
     await video.save();
-    res.json({ likes: video.likes.length, dislikes: video.dislikes.length, liked: video.likes.includes(req.user._id) });
+    res.json({
+      likes: video.likes.length,
+      dislikes: video.dislikes.length,
+      liked: video.likes.includes(req.user._id),
+    });
   } catch (err) {
     res.status(500).json({ message: "Like failed", error: err.message });
   }
@@ -220,7 +231,11 @@ exports.dislikeVideo = async (req, res) => {
       video.dislikes.push(req.user._id);
     }
     await video.save();
-    res.json({ likes: video.likes.length, dislikes: video.dislikes.length, disliked: video.dislikes.includes(req.user._id) });
+    res.json({
+      likes: video.likes.length,
+      dislikes: video.dislikes.length,
+      disliked: video.dislikes.includes(req.user._id),
+    });
   } catch (err) {
     res.status(500).json({ message: "Dislike failed", error: err.message });
   }

@@ -19,49 +19,41 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.navigation.fragment.findNavController
+import com.example.mobile.R
+import android.util.Log
+import com.example.mobile.dto.user.User
+import com.example.mobile.dto.video.Video
+import java.io.InputStream
+import java.time.Instant
 
 class AddVideoFragment : Fragment() {
 
-    private lateinit var binding: FragmentAddVideoBinding
-
+    private var _binding: FragmentAddVideoBinding? = null
+    private val binding get() = _binding!!
     private var selectedPosterUri: Uri? = null
     private var selectedVideoUri: Uri? = null
 
-    private val imagePickerLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                selectedPosterUri = it
-                binding.posterPreview.setImageURI(it)
-                binding.posterPreview.visibility = View.VISIBLE
-            }
+    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            selectedPosterUri = it
+            binding.posterPreview.setImageURI(it)
+            binding.posterPreview.visibility = View.VISIBLE
         }
+    }
 
-    private val videoPickerLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                selectedVideoUri = it
-                binding.videoFileNameText.text = getFileName(it)
-            }
+    private val videoPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            selectedVideoUri = it
+            binding.videoFileNameText.text = getFileName(it)
         }
+    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentAddVideoBinding.inflate(inflater, container, false)
-
-        binding.selectPosterButton.setOnClickListener {
-            imagePickerLauncher.launch("image/*")
-        }
-
-        binding.selectVideoButton.setOnClickListener {
-            videoPickerLauncher.launch("video/*")
-        }
-
-        binding.addVideoButton.setOnClickListener {
-            uploadVideo()
-        }
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentAddVideoBinding.inflate(inflater, container, false)
+        binding.selectPosterButton.setOnClickListener { imagePickerLauncher.launch("image/*") }
+        binding.selectVideoButton.setOnClickListener { videoPickerLauncher.launch("video/*") }
+        binding.addVideoButton.setOnClickListener { uploadVideo() }
         return binding.root
     }
 
@@ -71,25 +63,22 @@ class AddVideoFragment : Fragment() {
             cursor?.use {
                 val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 if (nameIndex != -1 && it.moveToFirst()) {
-                    val fileName = it.getString(nameIndex)
-                    if (fileName != null) return fileName
+                    return it.getString(nameIndex)
                 }
             }
         }
-
         uri.path?.let { path ->
             val lastSlash = path.lastIndexOf('/')
             if (lastSlash != -1 && lastSlash < path.length - 1) {
                 return path.substring(lastSlash + 1)
             }
         }
-
         return "unknown_file"
     }
 
     private fun prepareFilePart(name: String, uri: Uri): MultipartBody.Part {
         val contentResolver = requireContext().contentResolver
-        val inputStream = contentResolver.openInputStream(uri)
+        val inputStream: InputStream? = contentResolver.openInputStream(uri)
         val fileBytes = inputStream?.readBytes() ?: byteArrayOf()
         val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
         val requestBody = fileBytes.toRequestBody(mimeType.toMediaTypeOrNull())
@@ -103,29 +92,58 @@ class AddVideoFragment : Fragment() {
             Toast.makeText(requireContext(), "Fill all fields", Toast.LENGTH_SHORT).show()
             return
         }
-
         val sharedPref = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         val token = sharedPref.getString("token", null) ?: return
-
         val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
         val videoPart = prepareFilePart("video", selectedVideoUri!!)
         val posterPart = prepareFilePart("poster", selectedPosterUri!!)
-
-        val videoApi = RetrofitClient.getInstance().videoApi
-
-        videoApi.uploadVideo(token, titlePart, videoPart, posterPart)
+        RetrofitClient.getInstance().videoApi.uploadVideo(token, titlePart, videoPart, posterPart)
             .enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if (response.isSuccessful) {
-                        Toast.makeText(requireContext(), "Video uploaded successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Video uploaded!", Toast.LENGTH_SHORT).show()
+
+                        // Создаём объект нового видео
+                        val newVideo = Video(
+                            _id = "temporary_id_${System.currentTimeMillis()}",
+                            title = binding.videoNameEditText.text.toString(),
+                            videoUrl = "", // URL видео можно оставить пустым
+                            posterUrl = "", // URL постера
+                            author = User(
+                                _id = "current_user_id",
+                                username = "current_username",
+                                email = "",
+                                password = "",
+                                role = "",
+                                avatarUrl = "current_user_avatar_url",
+                                subscriptions = emptyList(),
+                                followers = emptyList()
+                            ),
+                            createdAt = java.time.Instant.now().toString(),
+                            likes = emptyList(),
+                            dislikes = emptyList()
+                        )
+
+                        // Передаём данные в HomeFragment
+                        val bundle = Bundle().apply {
+                            putParcelable("new_video", newVideo)
+                        }
+                        parentFragmentManager.setFragmentResult("add_video_local", bundle)
+
+                        // Возвращаемся на главный экран
+                        findNavController().popBackStack(R.id.navigation_home, false)
                     } else {
-                        Toast.makeText(requireContext(), "Upload failed: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
                     }
                 }
-
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                     Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -20,6 +20,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val navView: BottomNavigationView = binding.navView
+        navView.setOnItemReselectedListener { item ->
+            if (item.itemId == R.id.navigation_home) {
+                findNavController(R.id.nav_host_fragment_activity_main)
+                    .currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("refresh_home", true)
+            }
+        }
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         val appBarConfiguration = AppBarConfiguration(

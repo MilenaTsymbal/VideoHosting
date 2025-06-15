@@ -1,0 +1,41 @@
+package com.example.mobile.ui.home
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.mobile.R
+import com.example.mobile.databinding.ItemVideoBinding
+import com.example.mobile.dto.video.Video
+
+class VideoAdapter(
+    private val videos: List<Video>,
+    private val onClick: (Video) -> Unit
+) : RecyclerView.Adapter<VideoAdapter.VideoViewHolder>() {
+
+    inner class VideoViewHolder(val binding: ItemVideoBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(video: Video) {
+            binding.videoTitle.text = video.title
+            binding.authorName.text = video.author.username
+            Glide.with(binding.root.context)
+                .load("http://10.0.2.2:5000/${video.posterUrl}")
+                .into(binding.videoPoster)
+            Glide.with(binding.root.context)
+                .load(video.author.avatarUrl)
+                .placeholder(R.drawable.ic_avatar)
+                .into(binding.authorAvatar)
+            binding.root.setOnClickListener { onClick(video) }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
+        val binding = ItemVideoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return VideoViewHolder(binding)
+    }
+
+    override fun getItemCount() = videos.size
+
+    override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
+        holder.bind(videos[position])
+    }
+}
